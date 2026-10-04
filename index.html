@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f8ee">
+  <title>お買い物サポート</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div class="brand-mark" aria-hidden="true">🧺</div>
+      <div>
+        <p class="eyebrow">かんたん おかいものメモ</p>
+        <h1>おかいもの予算メモ</h1>
+      </div>
+    </header>
+
+    <nav class="stepper" aria-label="画面の進行状況">
+      <span class="step is-current" data-step="budget"><b>1</b> 予算</span>
+      <span class="step" data-step="shopping"><b>2</b> お買い物</span>
+      <span class="step" data-step="result"><b>3</b> 結果</span>
+    </nav>
+
+    <section class="screen" id="budget-screen" aria-labelledby="budget-title">
+      <div class="section-heading">
+        <span class="heading-icon" aria-hidden="true">🌱</span>
+        <div><p class="eyebrow">はじめに</p><h2 id="budget-title">今日の予算を決めよう</h2></div>
+      </div>
+      <p class="muted">今日のお買い物で使う金額を入力してください。</p>
+
+      <label class="field-label" for="budget-input">予算（円）</label>
+      <div class="amount-entry">
+        <input id="budget-input" type="number" min="1" step="1" inputmode="numeric" placeholder="例：3000" aria-describedby="budget-error">
+        <span>円</span>
+      </div>
+      <p class="error-message" id="budget-error" role="alert"></p>
+
+      <div class="preset-grid" aria-label="予算の候補">
+        <button class="preset-button" type="button" data-budget="500">500円</button>
+        <button class="preset-button" type="button" data-budget="1000">1,000円</button>
+        <button class="preset-button" type="button" data-budget="5000">5,000円</button>
+        <button class="preset-button" type="button" data-budget="10000">10,000円</button>
+      </div>
+      <button class="button button-voice button-full" type="button" data-voice-target="budget">
+        <span aria-hidden="true">🎙️</span> 声で予算を入力
+      </button>
+      <p class="voice-hint">例：「3000円」</p>
+      <button class="button button-primary button-full button-start" id="start-shopping" type="button">この予算ではじめる <span aria-hidden="true">→</span></button>
+      <button class="button button-quiet button-full" id="open-history" type="button">📚 過去のお買い物を見る</button>
+      <p class="privacy-note">入力した内容は、このブラウザー内に保存されます。</p>
+    </section>
+
+    <section class="screen" id="shopping-screen" aria-labelledby="shopping-title" hidden>
+      <div class="section-heading">
+        <span class="heading-icon" aria-hidden="true">🛍️</span>
+        <div><p class="eyebrow">お買い物中</p><h2 id="shopping-title">買った金額を記録しよう</h2></div>
+      </div>
+
+      <div class="summary-cards">
+        <article class="summary-card"><span>今日の予算</span><strong id="shopping-budget">0円</strong></article>
+        <article class="summary-card summary-card-remaining"><span>あと使える金額</span><strong id="shopping-remaining">0円</strong></article>
+      </div>
+      <div class="spent-line"><span>使った金額</span><strong id="shopping-spent">0円</strong></div>
+      <div class="progress-track" role="progressbar" aria-label="予算の使用状況" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="budget-progress"></span></div>
+
+      <div class="calculator-card">
+        <label class="field-label" for="purchase-display">買った金額</label>
+        <div class="calculator-display"><input id="purchase-display" type="text" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="購入金額"><span>円</span></div>
+        <div class="keypad" aria-label="金額入力">
+          <button type="button" class="key" data-key="7">7</button><button type="button" class="key" data-key="8">8</button><button type="button" class="key" data-key="9">9</button>
+          <button type="button" class="key" data-key="4">4</button><button type="button" class="key" data-key="5">5</button><button type="button" class="key" data-key="6">6</button>
+          <button type="button" class="key" data-key="1">1</button><button type="button" class="key" data-key="2">2</button><button type="button" class="key" data-key="3">3</button>
+          <button type="button" class="key key-utility" data-key="clear">C</button><button type="button" class="key" data-key="0">0</button><button type="button" class="key key-utility" data-key="backspace" aria-label="一文字消す">⌫</button>
+        </div>
+        <button class="button button-voice button-full" type="button" data-voice-target="purchase"><span aria-hidden="true">🎙️</span> 声で金額を入力</button>
+        <p class="voice-hint">例：「580円」</p>
+        <div class="purchase-actions">
+          <button class="button button-primary button-full" id="add-purchase" type="button">購入を登録する</button>
+          <button class="button button-quiet button-full" id="cancel-edit" type="button" hidden>編集をやめる</button>
+        </div>
+        <p class="error-message" id="purchase-error" role="alert"></p>
+      </div>
+
+      <div class="history-heading"><h3>購入履歴</h3><span id="purchase-count-label">0件</span></div>
+      <ul class="purchase-list" id="purchase-list"></ul>
+      <p class="empty-history" id="empty-history">金額を入力して「購入を登録する」を押してください。</p>
+      <button class="button button-finish button-full" id="finish-shopping" type="button">買い物を終える <span aria-hidden="true">→</span></button>
+      <button class="text-button" id="change-budget" type="button">予算を変更する</button>
+    </section>
+
+    <section class="screen" id="result-screen" aria-labelledby="result-title" hidden>
+      <div class="result-hero">
+        <div class="result-illustration" aria-hidden="true">🧺✨</div>
+        <p class="eyebrow">お買い物おつかれさまでした</p>
+        <h2 id="result-title">今日のお買い物結果</h2>
+      </div>
+      <div class="result-card">
+        <div class="result-row"><span>今回の予算</span><strong id="result-budget">0円</strong></div>
+        <div class="result-row"><span>使った金額</span><strong id="result-spent">0円</strong></div>
+        <div class="result-row result-remaining"><span>残った金額</span><strong id="result-remaining">0円</strong></div>
+        <div class="result-count"><span class="count-icon" aria-hidden="true">🧾</span><span>購入回数</span><strong id="result-count">0回</strong></div>
+      </div>
+      <p class="result-message" id="result-message"></p>
+      <button class="button button-primary button-full" id="new-shopping" type="button">新しいお買い物をはじめる</button>
+      <button class="button button-quiet button-full" id="open-history-result" type="button">📚 過去のお買い物を見る</button>
+      <button class="button button-quiet button-full" id="back-to-shopping" type="button">購入履歴を確認する</button>
+    </section>
+
+    <section
+  class="screen"
+  id="history-screen"
+  aria-labelledby="history-title"
+  hidden
+>
+  <div class="section-heading">
+    <span class="heading-icon" aria-hidden="true">📚</span>
+
+    <div>
+      <p class="eyebrow">これまでのお買い物</p>
+      <h2 id="history-title">お買い物履歴</h2>
+    </div>
+  </div>
+
+  <p class="muted">
+    今までのお買い物を確認できます。
+  </p>
+
+  <div class="history-toolbar">
+    <span id="saved-history-count">0件</span>
+
+    <button
+      class="button button-quiet"
+      id="download-history"
+      type="button"
+    >
+      ⬇ CSVで保存
+    </button>
+  </div>
+
+  <div id="saved-history-list"></div>
+
+  <p class="empty-history" id="empty-saved-history">
+    まだ保存されたお買い物はありません。
+  </p>
+
+  <button
+    class="button button-primary button-full"
+    id="history-new-shopping"
+    type="button"
+  >
+    新しいお買い物をはじめる
+  </button>
+
+  <button
+    class="text-button"
+    id="history-back"
+    type="button"
+  >
+    ← もどる
+  </button>
+</section>
+
+    <footer class="app-footer">無理なく、たのしく、お買い物 🌼</footer>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,288 @@
+:root {
+  font-family: "Nunito", "Noto Sans JP", system-ui, sans-serif;
+  color: #29382d;
+  background: #f5f8ee;
+  font-synthesis: none;
+  --green: #4f7c55;
+  --green-dark: #3d6845;
+  --green-pale: #edf5e8;
+  --cream: #fffdf7;
+  --coral: #e88b6a;
+  --line: #e4e9dc;
+  --muted: #7c897b;
+  --shadow: 0 14px 38px rgba(55, 78, 53, .09);
+}
+
+* { box-sizing: border-box; }
+body { min-width: 320px; margin: 0; padding: 30px 16px 48px; background: radial-gradient(ellipse at 12% 0%, #e9f1dc 0, transparent 34%), #f5f8ee; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid #a3c98e; outline-offset: 3px; }
+.app-shell { width: min(100%, 560px); margin: 0 auto; padding: 26px 28px 20px; border: 1px solid rgba(222, 231, 214, .9); border-radius: 28px; background: var(--cream); box-shadow: var(--shadow); }
+.app-header { display: flex; align-items: center; gap: 13px; padding: 0 0 19px; }
+.brand-mark { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 16px; background: #edf4e6; font-size: 25px; }
+.eyebrow { margin: 0 0 3px; color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.app-header h1 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: .01em; }
+.stepper { display: flex; justify-content: space-between; margin: 0 -2px 25px; padding: 11px 13px; border-radius: 14px; background: #f4f6ef; }
+.step { display: inline-flex; align-items: center; gap: 6px; color: #9aa493; font-size: 12px; font-weight: 700; }
+.step b { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #e4e9df; color: #7a8878; font-size: 11px; }
+.step.is-current { color: var(--green-dark); }
+.step.is-current b, .step.is-done b { background: var(--green); color: white; }
+.step.is-done { color: var(--green); }
+.screen[hidden] { display: none; }
+.section-heading { display: flex; align-items: center; gap: 12px; margin: 4px 0 8px; }
+.heading-icon { display: grid; width: 43px; height: 43px; flex: 0 0 auto; place-items: center; border-radius: 14px; background: #f1f6e9; font-size: 21px; }
+h2 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
+.muted { margin: 0 0 22px; color: var(--muted); font-size: 13px; }
+.field-label { display: block; margin: 0 0 8px; color: #5c6d5b; font-size: 12px; font-weight: 800; }
+.amount-entry, .calculator-display { display: flex; align-items: center; gap: 9px; padding: 12px 15px; border: 1px solid #dce6d5; border-radius: 15px; background: #fff; color: var(--green-dark); }
+.amount-entry input, .calculator-display input { width: 100%; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; color: #314b36; font-size: 29px; font-weight: 800; }
+.amount-entry input:focus-visible, .calculator-display input:focus-visible { outline: 0; }
+.amount-entry span, .calculator-display span { color: #81917d; font-size: 15px; font-weight: 700; }
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { margin: 0; -webkit-appearance: none; }
+input[type=number] { -moz-appearance: textfield; }
+.preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0 13px; }
+.preset-button { min-height: 47px; border: 1px solid #dce8d3; border-radius: 13px; background: #f6f9f1; color: var(--green-dark); font-size: 15px; font-weight: 800; transition: .15s ease; }
+.preset-button:hover, .preset-button.is-selected { border-color: #82a779; background: #eaf3e3; transform: translateY(-1px); }
+.button { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border: 0; border-radius: 14px; font-size: 14px; font-weight: 800; transition: transform .15s, filter .15s; }
+.button:hover { filter: brightness(.98); transform: translateY(-1px); }
+.button-full { width: 100%; }
+.button-voice { border: 1px solid #e1e9db; background: #f4f7ef; color: #557553; }
+.button-primary { background: var(--green); color: white; box-shadow: 0 5px 12px rgba(65, 108, 70, .16); }
+.button-primary:hover { background: var(--green-dark); }
+.button-start { min-height: 54px; margin-top: 15px; font-size: 15px; }
+.voice-hint { margin: 5px 2px 0; color: #98a194; font-size: 11px; }
+.privacy-note { margin: 13px 0 1px; color: #9ba496; text-align: center; font-size: 10px; }
+.error-message { min-height: 17px; margin: 5px 2px 0; color: #bb5747; font-size: 12px; }
+.summary-cards { display: grid; grid-template-columns: 1fr 1.25fr; gap: 10px; margin: 18px 0 13px; }
+.summary-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 13px 14px; border-radius: 15px; background: #f4f6ef; }
+.summary-card span, .spent-line span { color: #71806e; font-size: 11px; font-weight: 700; }
+.summary-card strong { font-size: clamp(18px, 5vw, 23px); letter-spacing: -.03em; }
+.summary-card-remaining { background: #edf5e8; color: var(--green-dark); }
+.spent-line { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 9px; }
+.spent-line strong { font-size: 15px; }
+.progress-track { height: 7px; overflow: hidden; border-radius: 9px; background: #edf0e9; }
+.progress-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: #83ad76; transition: width .25s; }
+.calculator-card { margin-top: 18px; padding: 16px; border: 1px solid #e7ebdf; border-radius: 19px; background: #fcfdf9; }
+.calculator-display { padding: 8px 13px; }
+.calculator-display input { text-align: right; font-size: 31px; }
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.key { min-height: 46px; border: 1px solid #e8ecdf; border-radius: 12px; background: white; color: #3b4f3c; font-size: 19px; font-weight: 800; box-shadow: 0 2px 0 #eff1e9; }
+.key:active { transform: translateY(1px); box-shadow: none; }
+.key-utility { background: #f0f4e9; color: #698064; }
+.purchase-actions { display: grid; gap: 8px; margin-top: 9px; }
+.button-quiet { border: 1px solid #e1e8dc; background: white; color: #60715e; }
+.button-budget-undo { margin-bottom: 13px; border-color: #e6b5b5; color: #c62828; }
+.button-budget-undo:disabled { cursor: default; }
+.button-budget-undo:disabled:hover { filter: none; transform: none; }
+.history-heading { display: flex; align-items: center; justify-content: space-between; margin: 22px 1px 9px; }
+.history-heading h3 { margin: 0; font-size: 15px; }
+.history-heading span { color: var(--muted); font-size: 11px; }
+.purchase-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.purchase-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 12px; border: 1px solid #edf0e8; border-radius: 13px; background: #fff; }
+.purchase-item-main { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
+.purchase-index { color: #8c9a86; font-size: 11px; font-weight: 700; }
+.purchase-price { color: #344b36; font-size: 17px; font-weight: 800; }
+.purchase-controls { display: flex; gap: 6px; flex: 0 0 auto; }
+.small-button { padding: 6px 9px; border: 1px solid #e4eade; border-radius: 9px; background: #f8faf5; color: #687b63; font-size: 11px; font-weight: 700; }
+.small-button.delete { color: #b66e5d; }
+.empty-history { margin: 0; padding: 14px; border-radius: 13px; background: #f8f9f5; color: #8d9889; text-align: center; font-size: 12px; }
+.button-finish { min-height: 52px; margin-top: 17px; background: #e88b6a; color: white; }
+.button-finish:hover { background: #db7959; }
+.text-button { display: block; margin: 10px auto 0; padding: 7px 10px; border: 0; background: transparent; color: #73846f; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.result-hero { padding: 6px 0 19px; text-align: center; }
+.result-illustration { margin-bottom: 9px; font-size: 43px; }
+.result-hero .eyebrow { margin-bottom: 5px; }
+.result-hero h2 { font-size: 22px; }
+.result-card { padding: 8px 17px; border: 1px solid #e5eadf; border-radius: 19px; background: #fff; }
+.result-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 1px; border-bottom: 1px solid #edf0e9; color: #697867; font-size: 13px; }
+.result-row strong { color: #344b36; font-size: 19px; }
+.result-remaining { color: var(--green-dark); }
+.result-remaining strong { color: var(--green-dark); font-size: 23px; }
+.result-count { display: flex; align-items: center; gap: 8px; padding: 15px 1px 13px; color: #697867; font-size: 13px; }
+.count-icon { font-size: 17px; }
+.result-count strong { margin-left: auto; color: #344b36; font-size: 17px; }
+.result-message { margin: 17px 0; color: #688065; text-align: center; font-size: 13px; font-weight: 700; }
+#back-to-shopping { margin-top: 9px; }
+.app-footer { margin: 24px 0 1px; color: #9aa493; text-align: center; font-size: 10px; }
+.toast { position: fixed; z-index: 5; right: 16px; bottom: 22px; left: 16px; width: fit-content; max-width: min(460px, calc(100% - 32px)); margin: 0 auto; padding: 12px 17px; border-radius: 12px; background: #344b36; color: white; font-size: 13px; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transform: translateY(8px); transition: .2s; }
+.toast.is-visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 430px) {
+  body { padding: 12px 10px 24px; }
+  .app-shell { padding: 19px 17px 16px; border-radius: 23px; }
+  .app-header { padding-bottom: 15px; }
+  .app-header h1 { font-size: 17px; }
+  .stepper { margin-bottom: 21px; padding: 9px; }
+  .step { gap: 4px; font-size: 11px; }
+  .step b { width: 20px; height: 20px; }
+  h2 { font-size: 18px; }
+  .heading-icon { width: 39px; height: 39px; }
+  .calculator-card { padding: 13px; }
+  .key { min-height: 43px; }
+}
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+
+/* =====================================================
+   過去のお買い物履歴
+===================================================== */
+
+.history-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 20px;
+  flex-wrap: wrap;
+}
+
+#saved-history-count {
+  font-weight: 700;
+  color: #60705c;
+  font-size: 0.95rem;
+}
+
+
+/* 履歴カード */
+
+.history-card {
+  margin-bottom: 18px;
+}
+
+.history-card h3 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  color: #52614f;
+  font-weight: 700;
+}
+
+
+/* 詳細表示 */
+
+.history-details {
+  margin-top: 18px;
+  border-top: 1px solid #e3e8dc;
+  padding-top: 14px;
+}
+
+.history-details summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+  color: #5d7257;
+  padding: 8px 0;
+  user-select: none;
+}
+
+.history-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-details summary::after {
+  content: "＋";
+  float: right;
+  font-size: 1.1rem;
+  color: #7a8d73;
+}
+
+.history-details[open] summary::after {
+  content: "−";
+}
+
+.history-details[open] summary {
+  margin-bottom: 10px;
+}
+
+
+/* 履歴内の購入一覧 */
+
+.history-details .purchase-list {
+  margin-top: 10px;
+}
+
+.history-details .purchase-item {
+  background: #f8faf5;
+  border: 1px solid #e6ebdf;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.history-details .purchase-item:last-child {
+  margin-bottom: 0;
+}
+
+.history-details .purchase-index {
+  color: #8a9785;
+  font-size: 0.85rem;
+}
+
+.history-details .purchase-price {
+  font-size: 1rem;
+}
+
+
+/* CSVボタン */
+
+#download-history {
+  width: auto;
+  min-width: 140px;
+}
+
+
+/* 履歴がない場合 */
+
+#empty-saved-history {
+  text-align: center;
+  padding: 30px 18px;
+  margin: 16px 0 24px;
+  border: 1px dashed #ced8c8;
+  border-radius: 16px;
+  background: #fafcf7;
+  color: #7b8977;
+}
+
+
+/* 履歴画面のボタン間隔 */
+
+#history-screen .button-full {
+  margin-top: 12px;
+}
+
+#history-back {
+  display: block;
+  margin: 18px auto 0;
+}
+
+
+/* =====================================================
+   スマホ調整
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .history-toolbar {
+    align-items: stretch;
+  }
+
+  #saved-history-count {
+    width: 100%;
+  }
+
+  #download-history {
+    width: 100%;
+  }
+
+  .history-card {
+    padding: 18px;
+  }
+
+  .history-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .history-details .purchase-item {
+    padding: 11px 12px;
+  }
+}

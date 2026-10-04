@@ -1,0 +1,23 @@
+# Windows / macOS
+Thumbs.db
+.DS_Store
+
+# VS Code
+.vscode/
+
+# 秘密情報
+.env
+.env.local
+
+# JavaScript
+node_modules/
+dist/
+
+# Python（今後使う場合に備えて）
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# ログファイル
+*.log
