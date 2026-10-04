@@ -1,0 +1,10 @@
+{
+  "name": "お買い物サポート",
+  "short_name": "お買い物",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fffdf7",
+  "theme_color": "#4f8757",
+  "lang": "ja",
+  "description": "予算を決めて、お買い物を記録できるサポートアプリ"
+}
