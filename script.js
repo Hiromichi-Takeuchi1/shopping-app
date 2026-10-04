@@ -163,10 +163,18 @@ function loadShoppingHistory() {
 
       return (
         history &&
-        Number.isFinite(history.budget) &&
-        Array.isArray(history.purchases)
+        typeof history === "object" &&
+        !Array.isArray(history)
       );
 
+    }).map(history => {
+      const purchases = Array.isArray(history.purchases)
+        ? history.purchases.filter(item => item && typeof item === "object") : [];
+      const budget = Number.isFinite(history.budget) ? history.budget : 0;
+      const spent = Number.isFinite(history.spent) ? history.spent
+        : purchases.reduce((sum, item) => sum + (Number.isFinite(item.amount) ? item.amount : 0), 0);
+      return { ...history, budget, purchases, spent,
+        remaining: Number.isFinite(history.remaining) ? history.remaining : budget - spent };
     });
 
   } catch (error) {
@@ -189,12 +197,14 @@ function saveShoppingHistory(histories) {
       HISTORY_STORAGE_KEY,
       JSON.stringify(histories)
     );
+    return true;
 
   } catch (error) {
 
     showToast(
       "お買い物履歴を保存できませんでした"
     );
+    return false;
   }
 }
 
@@ -642,7 +652,8 @@ function saveCurrentShoppingToHistory() {
       state.purchases.map(
         purchase => ({
           id: purchase.id,
-          amount: purchase.amount
+          amount: purchase.amount,
+          ...(typeof purchase.name === "string" ? { name: purchase.name } : {})
         })
       ),
 
@@ -735,7 +746,7 @@ function renderHistory() {
 
 
   histories.forEach(
-    history => {
+    (history, displayIndex) => {
 
       const card =
         document.createElement(
@@ -904,6 +915,12 @@ function renderHistory() {
               number,
               amount
             );
+            if (typeof purchase.name === "string" && purchase.name) {
+              const name = document.createElement("span");
+              name.className = "history-purchase-name";
+              name.textContent = purchase.name;
+              item.append(name);
+            }
 
 
             purchaseList.append(
@@ -921,11 +938,180 @@ function renderHistory() {
 
       card.append(details);
 
+      const actions = document.createElement("div");
+      actions.className = "history-actions";
+      const historyIndex = histories.length - 1 - displayIndex;
+      actions.append(
+        historyAction("編集", () => editShoppingHistory(card, history, historyIndex)),
+        historyAction("削除", () => {
+          if (!window.confirm("この買い物履歴を削除しますか？")) return;
+          if (updateShoppingHistory(historyIndex, history, null)) {
+            renderHistory();
+            showToast("買い物履歴を削除しました");
+          }
+        }, "small-button delete")
+      );
+      card.append(actions);
+
       list.append(card);
     }
   );
 }
 
+
+function historyAction(text, action, className = "small-button") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.textContent = text;
+  button.addEventListener("click", action);
+  return button;
+}
+
+// 元の配列の位置で更新し、IDがない古い履歴も個別に扱います。
+function updateShoppingHistory(index, original, updated) {
+  try {
+    const records = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY));
+    const positions = Array.isArray(records) ? records.flatMap((item, position) =>
+      item && typeof item === "object" && !Array.isArray(item) ? [position] : []) : [];
+    const current = loadShoppingHistory()[index];
+    if (!current || JSON.stringify(current) !== JSON.stringify(original)) {
+      showToast("履歴が変更されています。開き直してお試しください");
+      return false;
+    }
+    const position = positions[index];
+    if (updated) records[position] = { ...records[position], ...updated };
+    else records.splice(position, 1);
+    if (!saveShoppingHistory(records)) return false;
+
+    // 今回の履歴を再度「買い物を終える」で上書きしないよう同期します。
+    if (original.id != null && original.id === state.currentHistoryId) {
+      if (updated) {
+        state.budget = updated.budget;
+        state.purchases = updated.purchases.map(item => ({ ...item }));
+        memoInput.value = updated.memo;
+        updateMemo();
+        setEditing(null);
+      } else {
+        state.currentHistoryId = null;
+      }
+      saveState();
+    }
+    return true;
+  } catch (error) {
+    showToast("お買い物履歴を更新できませんでした");
+    return false;
+  }
+}
+
+function editShoppingHistory(card, history, index) {
+  const form = document.createElement("form");
+  form.className = "history-editor";
+  form.noValidate = true;
+  const title = document.createElement("h3");
+  title.textContent = `${history.date ?? ""} の編集`;
+  form.append(title);
+
+  function field(labelText, type, value, parent = form) {
+    const label = document.createElement("label");
+    label.className = "field-label";
+    const caption = document.createElement("span");
+    caption.textContent = labelText;
+    const input = document.createElement(type === "textarea" ? "textarea" : "input");
+    if (type !== "textarea") input.type = type;
+    input.value = value;
+    if (type === "number") {
+      input.min = "1";
+      input.step = "1";
+      input.inputMode = "numeric";
+    }
+    label.append(caption, input);
+    parent.append(label);
+    return input;
+  }
+
+  const budget = field("予算（円）", "number", history.budget);
+  const purchaseList = document.createElement("div");
+  form.append(purchaseList);
+  const rows = [];
+  const totals = document.createElement("p");
+  totals.className = "history-edit-totals";
+  const error = document.createElement("p");
+  error.className = "error-message";
+  error.setAttribute("role", "alert");
+
+  function recalculate() {
+    const spent = rows.reduce((sum, row) => sum + (Number(row.amount.value) || 0), 0);
+    totals.textContent = `使った金額：${yen(spent)} ／ 残った金額：${yen(Number(budget.value) - spent)} ／ 購入回数：${rows.length}回`;
+  }
+
+  function addRow(purchase = {}) {
+    const container = document.createElement("div");
+    container.className = "history-edit-purchase";
+    const name = field("購入内容（任意）", "text", purchase.name ?? "", container);
+    const amount = field("購入金額（円）", "number", purchase.amount ?? "", container);
+    const row = { container, name, amount, original: { ...purchase } };
+    rows.push(row);
+    amount.addEventListener("input", recalculate);
+    container.append(historyAction("この明細を削除", () => {
+      rows.splice(rows.indexOf(row), 1);
+      container.remove();
+      recalculate();
+    }, "small-button delete"));
+    purchaseList.append(container);
+    recalculate();
+  }
+
+  history.purchases.forEach(addRow);
+  form.append(historyAction("購入明細を追加", () => addRow()));
+  const memo = field("メモ（200文字以内）", "textarea", typeof history.memo === "string" ? history.memo : "");
+  memo.maxLength = 200;
+  memo.rows = 4;
+  const counter = document.createElement("p");
+  counter.className = "memo-count";
+  function countMemo() { counter.textContent = `${memo.value.length} / 200`; }
+  memo.addEventListener("input", countMemo);
+  countMemo();
+  budget.addEventListener("input", recalculate);
+  recalculate();
+  form.append(counter, totals, error);
+  const actions = document.createElement("div");
+  actions.className = "history-actions";
+  const save = document.createElement("button");
+  save.type = "submit";
+  save.className = "button button-primary";
+  save.textContent = "保存";
+  actions.append(save, historyAction("キャンセル", renderHistory, "button button-quiet"));
+  form.append(actions);
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const nextBudget = Number(budget.value);
+    const purchases = rows.map(row => {
+      const item = { ...row.original, id: row.original.id ?? createId(), amount: Number(row.amount.value) };
+      if (row.name.value || Object.hasOwn(row.original, "name")) item.name = row.name.value;
+      return item;
+    });
+    const spent = purchases.reduce((sum, item) => sum + item.amount, 0);
+    if (!Number.isSafeInteger(nextBudget) || nextBudget <= 0 ||
+        purchases.some(item => !Number.isSafeInteger(item.amount) || item.amount <= 0) ||
+        !Number.isSafeInteger(spent)) {
+      error.textContent = "予算と購入金額は1円以上の整数で入力してください。";
+      return;
+    }
+    if (memo.value.length > 200) {
+      error.textContent = "メモは200文字以内で入力してください。";
+      return;
+    }
+    const updated = { ...history, budget: nextBudget, purchases, spent,
+      remaining: nextBudget - spent, memo: memo.value, updatedAt: new Date().toISOString() };
+    if (updateShoppingHistory(index, history, updated)) {
+      renderHistory();
+      showToast("買い物履歴を更新しました");
+    }
+  });
+  card.replaceChildren(form);
+  budget.focus();
+}
 
 function createHistoryRow(
   label,
