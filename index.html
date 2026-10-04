@@ -14,7 +14,7 @@
       <div class="brand-mark" aria-hidden="true">🧺</div>
       <div>
         <p class="eyebrow">かんたん おかいものメモ</p>
-        <h1>おかいもの予算メモ</h1>
+        <h1>お買い物サポート</h1>
       </div>
     </header>
 
@@ -49,6 +49,12 @@
       </button>
       <p class="voice-hint">例：「3000円」</p>
       <button class="button button-primary button-full button-start" id="start-shopping" type="button">この予算ではじめる <span aria-hidden="true">→</span></button>
+      <div class="memo-field">
+        <label class="field-label" for="memo-input">メモ（200文字以内）</label>
+        <textarea id="memo-input" rows="4" maxlength="200" aria-describedby="memo-count"></textarea>
+        <p class="memo-count" id="memo-count">0 / 200</p>
+        <button class="button button-voice button-full" type="button" data-voice-target="memo"><span aria-hidden="true">🎙️</span> 声でメモを入力</button>
+      </div>
       <button class="button button-quiet button-full" id="open-history" type="button">📚 過去のお買い物を見る</button>
       <p class="privacy-note">入力した内容は、このブラウザー内に保存されます。</p>
     </section>

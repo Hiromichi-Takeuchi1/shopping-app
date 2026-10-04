@@ -46,6 +46,23 @@ const screens = {
 
 const budgetInput = document.querySelector("#budget-input");
 const purchaseDisplay = document.querySelector("#purchase-display");
+const memoInput = document.querySelector("#memo-input");
+const memoCount = document.querySelector("#memo-count");
+
+memoInput.value = state.memo;
+updateMemo();
+
+function updateMemo() {
+  // maxlengthと同じUTF-16の文字数で、音声入力にも上限を適用します。
+  memoInput.value = memoInput.value.slice(0, 200);
+  state.memo = memoInput.value;
+  memoCount.textContent = `${state.memo.length} / 200`;
+}
+
+memoInput.addEventListener("input", () => {
+  updateMemo();
+  saveState();
+});
 
 
 // ========================================================
@@ -69,6 +86,7 @@ function loadState() {
       return {
 
         budget: saved.budget,
+        memo: typeof saved.memo === "string" ? saved.memo.slice(0, 200) : "",
 
         purchases: saved.purchases.filter(
           item =>
@@ -99,6 +117,7 @@ function loadState() {
 
   return {
     budget: 0,
+    memo: "",
     purchases: [],
     screen: "budget",
     currentHistoryId: null
@@ -629,7 +648,8 @@ function saveCurrentShoppingToHistory() {
 
     spent,
 
-    remaining
+    remaining,
+    memo: state.memo
   };
 
 
@@ -782,6 +802,17 @@ function renderHistory() {
       // --------------------------------
       // ③ 詳細表示
       // --------------------------------
+
+      if (typeof history.memo === "string" && history.memo.trim()) {
+        const memo = document.createElement("div");
+        memo.className = "history-memo";
+        const label = document.createElement("strong");
+        label.textContent = "メモ";
+        const text = document.createElement("p");
+        text.textContent = history.memo;
+        memo.append(label, text);
+        card.append(memo);
+      }
 
       const details =
         document.createElement(
@@ -961,7 +992,8 @@ async function downloadHistoryCSV() {
       "購入番号",
       "購入金額",
       "使用金額合計",
-      "残額"
+      "残額",
+      "メモ"
     ]
   ];
 
@@ -976,7 +1008,8 @@ async function downloadHistoryCSV() {
         "",
         "",
         history.spent,
-        history.remaining
+        history.remaining,
+        history.memo ?? ""
       ]);
 
       return;
@@ -991,7 +1024,8 @@ async function downloadHistoryCSV() {
         index + 1,
         purchase.amount,
         history.spent,
-        history.remaining
+        history.remaining,
+        history.memo ?? ""
       ]);
 
     });
@@ -1410,6 +1444,9 @@ function finishShopping() {
 
 function startNewShopping() {
 
+  memoInput.value = "";
+  updateMemo();
+
   state.budget =
     0;
 
@@ -1724,6 +1761,9 @@ function startVoiceInput(target) {
 
   recognition.interimResults =
     false;
+  
+  recognition.continuous =
+    false;
 
   recognition.maxAlternatives =
     1;
@@ -1732,7 +1772,7 @@ function startVoiceInput(target) {
   recognition.onstart =
     () =>
       showToast(
-        "金額をお話しください"
+        target === "memo" ? "メモをお話しください" : "金額をお話しください"
       );
 
 
@@ -1751,12 +1791,41 @@ function startVoiceInput(target) {
     };
 
 
+  // 重複防止は今回の音声入力中だけ有効にします。
+  let lastMemoTranscript = "";
+  const processedMemoResults = new Set();
+
   recognition.onresult =
     event => {
 
+      const result = event.results[event.resultIndex];
+      if (!result || !result.isFinal) return;
+
       const spoken =
-        event.results[0][0]
-          .transcript;
+        result[0].transcript.trim();
+      if (!spoken) return;
+
+      if (target === "memo") {
+        if (processedMemoResults.has(event.resultIndex)) return;
+        processedMemoResults.add(event.resultIndex);
+        if (spoken === lastMemoTranscript) return;
+        lastMemoTranscript = spoken;
+
+        const available = 200 - memoInput.value.length;
+        // サロゲートペアの途中で音声の文章を切らないようにします。
+        let addition = "";
+        for (const character of spoken) {
+          if (addition.length + character.length > available) break;
+          addition += character;
+        }
+        memoInput.value += addition;
+        updateMemo();
+        saveState();
+        showToast(addition.length < spoken.length
+          ? "メモは200文字以内です。入る分だけ追加しました"
+          : "メモに音声入力を追加しました");
+        return;
+      }
 
 
       const amount =

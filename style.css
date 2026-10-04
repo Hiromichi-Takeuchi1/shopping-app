@@ -52,6 +52,12 @@ input[type=number] { -moz-appearance: textfield; }
 .button-primary:hover { background: var(--green-dark); }
 .button-start { min-height: 54px; margin-top: 15px; font-size: 15px; }
 .voice-hint { margin: 5px 2px 0; color: #98a194; font-size: 11px; }
+.memo-field { margin: 18px 0; }
+#memo-input { display: block; width: 100%; min-height: 112px; padding: 12px 15px; border: 1px solid #dce6d5; border-radius: 15px; background: #fff; color: #314b36; font: inherit; font-size: 16px; line-height: 1.6; resize: vertical; }
+#memo-input:focus-visible { outline: 3px solid #a3c98e; outline-offset: 3px; }
+.memo-count { margin: 5px 2px 10px; color: var(--muted); text-align: right; font-size: 12px; }
+.history-memo { margin: 14px 0; color: #5c6d5b; font-size: 13px; }
+.history-memo p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .privacy-note { margin: 13px 0 1px; color: #9ba496; text-align: center; font-size: 10px; }
 .error-message { min-height: 17px; margin: 5px 2px 0; color: #bb5747; font-size: 12px; }
 .summary-cards { display: grid; grid-template-columns: 1fr 1.25fr; gap: 10px; margin: 18px 0 13px; }
